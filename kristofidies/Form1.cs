@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace kristofidies
@@ -19,13 +20,44 @@ namespace kristofidies
             listBox1.DataSource = odd;
             if (odd.Count%2 != 0)
                 MessageBox.Show(string.Format("{0}", odd.Count));
-            var size = 0;
-            var dynamicValues = new List<dynamic>();
-            for (int i = 0; i < (verticiesCount - size) * (verticiesCount - size - 1) / 2; i++)
+            var filteredData = new int[odd.Count, odd.Count];
+            for (int i = 0; i < odd.Count; i++)
             {
-                dynamicValues.Add(new List<dynamic>());
+                for (int j = 0; j < odd.Count; j++)
+                {
+                    if (i == j)
+                        filteredData[i, j] = int.MaxValue;
+                    else
+                        filteredData[i, j] = sourceData.DistanciesList[odd[i]][odd[j]];
+                }
             }
-            size++;
+            var hung = new HungarianAlgorithm(filteredData);
+            var res = hung.Run();
+        }
+
+        public int[,] To2DArray(List<List<int>> source)
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
+
+            int max = source.Select(l => l).Max(l => l.Count);
+
+            var result = new int[source.Count, max];
+
+            for (int i = 0; i < source.Count - 1; i++)
+            {
+                for (int j = 0; j < source[i].Count; j++)
+                {
+                    if (source[i][j] == 0)
+                        result[i, j] = int.MaxValue;
+                    else
+                        result[i, j] = source[i][j];
+                }
+            }
+
+            return result;
         }
 
         private static List<int> FindOddVerticies(int verticiesCount, List<Edge> mst)

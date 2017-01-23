@@ -9,7 +9,7 @@ namespace kristofidies
     public class Data
     {
         public List<City> Cities { get; set; }
-        public List<List<double>>  DistanciesList;
+        public List<List<int>>  DistanciesList;
         public int CitiesCount;
 
         public static Data ReadData()
@@ -41,13 +41,13 @@ namespace kristofidies
 
         public void CalculateDistanciesList()
         {
-            var distancies = new List<List<double>>();
+            var distancies = new List<List<int>>();
             foreach (var city1 in Cities)
             {
-                distancies.Add(new List<double>());
+                distancies.Add(new List<int>());
                 foreach (var city2 in Cities)
                 {
-                    distancies.Last().Add(Math.Sqrt(Math.Pow(city1.X-city2.X,2)+Math.Pow(city1.Y-city2.Y,2)));
+                    distancies.Last().Add(Convert.ToInt32(Math.Floor(Math.Sqrt(Math.Pow(city1.X - city2.X, 2) + Math.Pow(city1.Y - city2.Y, 2)))));
                 }
             }
             DistanciesList = distancies;
