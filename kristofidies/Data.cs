@@ -24,8 +24,8 @@ namespace kristofidies
                     var sourceList = line.Split(' ').ToList();
                     sourceData.Add(new City
                     {
-                        X = Convert.ToDouble(sourceList[1]),
-                        Y = Convert.ToDouble(sourceList[2]),
+                        X = Convert.ToInt32(sourceList[1]),
+                        Y = Convert.ToInt32(sourceList[2]),
                         Number = Convert.ToInt32(sourceList[0])
                     });
                 } while ((line = streamReader.ReadLine()) != null);

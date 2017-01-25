@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -13,12 +14,12 @@ namespace kristofidies
             InitializeComponent();
             var sourceData = Data.ReadData();
             sourceData.CalculateDistanciesList();
-            var edges = Init(sourceData);
+            var edges = Init(sourceData.DistanciesList);
             var verticesCount = sourceData.CitiesCount;
-            var minimumSpanningTree = new List<Edge>();
+            //var minimumSpanningTree = new List<Edge>();
             var cruscalTree = CruscalAlgorithm(edges, verticesCount);
             //AlgorithmPrima(verticesCount, edges, minimumSpanningTree);
-            minimumSpanningTree = cruscalTree.ToList();
+            var minimumSpanningTree = cruscalTree.ToList();
             var odd = FindOddVertices(verticesCount, minimumSpanningTree);
             if (odd.Count%2 != 0)
                 MessageBox.Show(string.Format("{0}", odd.Count));
@@ -54,7 +55,7 @@ namespace kristofidies
                 MessageBox.Show(@"Fail");
             var result = GetMatrix(eulerGraph, verticesCount);
             PrintMatrix(result);
-            var eulerPath = FindEulerPath(eulerGraph, new Random().Next(0, verticesCount));
+            var eulerPath = FindEulerPath(eulerGraph, 0);
             var eulerPathString = "";
             foreach (var item in eulerPath)
             {
@@ -62,10 +63,28 @@ namespace kristofidies
             }
             MessageBox.Show(eulerPathString);
             var hamiltonianPath = eulerPath.Distinct().ToList();
+            var maxX = sourceData.Cities.Max(item => item.X);
+            var maxY = sourceData.Cities.Max(item => item.Y);
+            foreach (var city in sourceData.Cities)
+            {
+                city.X = Convert.ToInt32((double)city.X/maxX*1200);
+                city.Y = Convert.ToInt32((double) city.Y/maxY*700);
+            }
+            PictureBox pictureBox = new PictureBox {Size = new Size(1200, 700)};
+            this.Size = new Size(1300, 750);
+            this.Controls.Add(pictureBox);
+            Bitmap bmp = new Bitmap(1200, 700);
+            Graphics graph = Graphics.FromImage(bmp);
+            for (int i = 0; i < hamiltonianPath.Count - 1; i++)
+            {
+                graph.DrawLine(Pens.Black, new Point(sourceData.Cities[hamiltonianPath[i]].X, sourceData.Cities[hamiltonianPath[i]].Y), new Point(sourceData.Cities[hamiltonianPath[i + 1]].X, sourceData.Cities[hamiltonianPath[i + 1]].Y));
+            }
+            graph.DrawLine(Pens.Black, new Point(sourceData.Cities[hamiltonianPath[0]].X, sourceData.Cities[hamiltonianPath[0]].Y), new Point(sourceData.Cities[hamiltonianPath.Last()].X, sourceData.Cities[hamiltonianPath.Last()].Y));
+            pictureBox.Image = bmp;
             var hamiltonianPathString = "";
             foreach (var item in hamiltonianPath)
             {
-                hamiltonianPathString += item + " ";
+                hamiltonianPathString += item + 1 + " ";
             }
             MessageBox.Show(hamiltonianPathString);
             var pathLenght = GetPathLenght(hamiltonianPath, sourceData);
@@ -80,6 +99,7 @@ namespace kristofidies
             cost += sourceData.DistanciesList[vertices[0]][vertices.Last()];
             return cost;
         }
+
         private static List<Edge> CruscalAlgorithm(List<Edge> edges, int verticesCount)
         {
             var sortedEdges = edges.OrderBy(item => item.Weight).ToList();
@@ -195,18 +215,18 @@ namespace kristofidies
             return odd;
         }
 
-        public List<Edge> Init(Data data)
+        public List<Edge> Init(List<List<int>> data)
         {
             var edges = new List<Edge>();
-            for (var i = 0; i < data.DistanciesList.Count; i++)
+            for (var i = 0; i < data.Count; i++)
             {
-                for (var j = i + 1; j < data.DistanciesList[i].Count; j++)
+                for (var j = i + 1; j < data[i].Count; j++)
                 {
                     edges.Add(new Edge
                     {
                         Start = i,
                         End = j,
-                        Weight = data.DistanciesList[i][j]
+                        Weight = data[i][j]
                     });
                 }
             }
